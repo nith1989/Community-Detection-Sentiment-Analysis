@@ -1,0 +1,56 @@
+DESCRIPTION
+
+Data Collection(collect.py):
+
+The program extracts 500 tweets that mention PM of India @narendramodi using the search/tweets API. From these tweets, the program extracts 15 tweeters & information about their friends using the friends/ids API. 
+For these 15 users, the program extracts tweets from their timelines.
+The tweets & friends data is stored into files for usage later.
+This forms the basic data for classification & clustering!
+
+The program takes around 30-40 seconds to complete.
+
+Clustering(cluster.py):
+
+The program reads the previously created "friends" file. Using the data of PM Modi's 1st degree friends and 2nd degree friends, the program creates a social graph. The original graph is reduced to keep only friends who have a significant "friend" overlap with PM Modi (overlap is defined using Jaccard scores). A Jaccard threshhold of 0.1 is applied to the original graph and this reduces the number of nodes.
+
+Community detection using Girvan Newmann algorithm is performed on the reduced graph. 
+
+The program takes around 30 seconds to complete.
+
+Classification(classify.py):
+
+The program downloads the AFINN lexicon to perform sentiment analysis of the tweets collected earlier. 
+
+A bag of words based classifier was not built in this case
+due to the nature of the data collection. The tweets collected, do not belong to any "specific" category or group and hence finding a valid feature set of words that
+are common across tweets will be almost impossible. If the tweets were collected regarding a specific topic (say McDonalds) or even in this case, if the tweets 
+were collected for a specific year's election, a logistic regression based classifier could have been constructed. 
+
+The AFINN lexicon provides a good performance in terms of identifying positive & negative words in the tweets to classify them & hence was chosen as the choice of classifier.
+
+A tokenization process initially converts the tweet text to tokens. And the AFINN lexicon is looked up for each token in each tweet inorder to obtain the positive & negative scores of each token. Negative sentiments are converted to a negative scale so that the overall score is standardized around 0. For every tweet, the sum of the +ve & -ve scores defines the overall sentiment score.
+This tweet is then assigned to the +ve/ -ve class based on the above scores.
+
+The program takes around 20-30 seconds to complete.
+
+Summary(summary.py):
+The program reads the output of the previous methods to create a textfile called `summary.txt`. This file provides the required summary statistics and sample outputs.
+
+Observations & Conclusions:
+
+1. Community Detection
+   The graphs relating to PM Modi are generally observed to be dense (tightly knit). This is because of the nature of the network (there are a lot of political
+   communities that form around PM Modi that are tightly knit)
+
+   Hence, it is required that we perform the Girvan Newmann algorithm repeatedly and remove more and more edges which have high betweenness scores so that we can discover 
+   meaningful communities. If the number of edges removed is less, then it was observed that the result will have one large tightly 
+   knit community and other smaller communities. Hence the graph is partitioned till atleast 20 communities are formed.
+   
+2. Sentiment Classification
+   * AFINN lexicon is able to correctly identify the sentiment tokens. One improvement could be to use the NLP library (WordNet). 
+   * A lot of "Hindi" words (national language in India) seem to appear in tweets, this will not be well handled by an English 
+     lexicon. These could be the top misclassified documents.
+   * No out-of-time sample was tested, hence the testing accuracy of this classification is not well known.
+
+
+
